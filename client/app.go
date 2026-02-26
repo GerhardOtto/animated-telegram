@@ -23,7 +23,11 @@ type App struct {
 func NewApp() (*App, error) {
 	cfg := config.Parse()
 
-	conn, err := grpc.NewClient(cfg.Addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(
+		cfg.Addr,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(timingInterceptor),
+	)
 	if err != nil {
 		return nil, err
 	}
