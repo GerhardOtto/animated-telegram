@@ -1,16 +1,22 @@
 package main
 
 import (
+	"context"
+	"time"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	pb "github.com/gerhardotto/animated-telegram/client/backendservice"
 	"github.com/gerhardotto/animated-telegram/client/internal/config"
+	"github.com/gerhardotto/animated-telegram/client/internal/service"
 )
 
 // App wires together configuration and the gRPC connection.
 type App struct {
-	conn *grpc.ClientConn
-	cfg  *config.Config
+	conn     *grpc.ClientConn
+	cfg      *config.Config
+	greeting *service.GreetingService
 }
 
 // NewApp parses configuration and dials the gRPC server.
@@ -22,9 +28,12 @@ func NewApp() (*App, error) {
 		return nil, err
 	}
 
+	client := pb.NewDataBackendClient(conn)
+
 	return &App{
-		conn: conn,
-		cfg:  cfg,
+		conn:     conn,
+		cfg:      cfg,
+		greeting: service.NewGreetingService(client),
 	}, nil
 }
 
@@ -35,5 +44,8 @@ func (a *App) Close() {
 
 // Run executes the client workflow.
 func (a *App) Run() error {
-	return nil
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	return a.greeting.SayHello(ctx, a.cfg.Name)
 }
