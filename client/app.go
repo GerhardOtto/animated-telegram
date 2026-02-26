@@ -17,6 +17,7 @@ type App struct {
 	conn     *grpc.ClientConn
 	cfg      *config.Config
 	greeting *service.GreetingService
+	auth     *service.AuthService
 }
 
 // NewApp parses configuration and dials the gRPC server.
@@ -38,6 +39,7 @@ func NewApp() (*App, error) {
 		conn:     conn,
 		cfg:      cfg,
 		greeting: service.NewGreetingService(client),
+		auth:     service.NewAuthService(client),
 	}, nil
 }
 
@@ -51,5 +53,10 @@ func (a *App) Run() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	return a.greeting.SayHello(ctx, a.cfg.Name)
+	if err := a.greeting.SayHello(ctx, a.cfg.Name); err != nil {
+		return err
+	}
+
+	_, err := a.auth.GetToken(ctx, a.cfg.Name)
+	return err
 }
