@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+option go_package = "techops.technical.challenge.com/backendservice";
+option csharp_namespace = "backendservice";
+package backendservice;
+
+service DataBackend {
+  rpc SayHello (HelloRequest) returns (HelloReply) {}
+  rpc GetAuthToken (AuthTokenRequest) returns (AuthTokenReply) {}
+  rpc GetTypesOfData (DataInfoRequest) returns (DataInfoReply) {}
+  rpc GetData (DataRequest) returns (DataReply) {}
+}
+
+message HelloRequest {
+  string name = 1;
+}
+
+message HelloReply {
+  string message = 1;
+}
+
+message AuthTokenRequest {
+  string username = 1;
+}
+
+message AuthTokenReply {
+ string authtoken = 1;
+}
+
+message DataInfoRequest {
+  string username = 1;
+  string authtoken = 2; 
+}
+
+message DataInformation {
+  string datasection = 1;
+  int32 datalength = 2;
+  int32 minchunk = 3;
+  int32 maxchunk = 4;
+}
+
+message DataInfoReply {
+  string info = 1;
+  repeated DataInformation alldatainfo = 2;
+}
+message DataRequest {
+  string username = 1;
+  string authtoken = 2;
+  string datarequested = 3;
+  int32 datastartindex = 4;
+  int32 datachunksize = 5;
+}
+
+message DataItem {
+  string stringval = 1;
+  int32 intVal = 2;
+}
+
+message DataReply{
+  repeated DataItem data = 1;
+}
+
