@@ -18,6 +18,7 @@ type App struct {
 	cfg      *config.Config
 	greeting *service.GreetingService
 	auth     *service.AuthService
+	data     *service.DataService
 }
 
 // NewApp parses configuration and dials the gRPC server.
@@ -40,6 +41,7 @@ func NewApp() (*App, error) {
 		cfg:      cfg,
 		greeting: service.NewGreetingService(client),
 		auth:     service.NewAuthService(client),
+		data:     service.NewDataService(client),
 	}, nil
 }
 
@@ -50,13 +52,23 @@ func (a *App) Close() {
 
 // Run executes the client workflow.
 func (a *App) Run() error {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 
 	if err := a.greeting.SayHello(ctx, a.cfg.Name); err != nil {
 		return err
 	}
 
-	_, err := a.auth.GetToken(ctx, a.cfg.Name)
+	token, err := a.auth.GetToken(ctx, a.cfg.Name)
+	if err != nil {
+		return err
+	}
+
+	sections, err := a.data.GetTypesOfData(ctx, a.cfg.Name, token)
+	if err != nil {
+		return err
+	}
+
+	_, err = a.data.GetAllData(ctx, a.cfg.Name, token, sections)
 	return err
 }
