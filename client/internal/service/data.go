@@ -48,6 +48,9 @@ func (s *DataService) GetAllData(ctx context.Context, username, authtoken string
 		var items []*pb.DataItem
 		start := int32(0)
 
+		// TODO: Optimize the fetching, use time and chunk sizes to increase the request size until optimal request duration is reached.
+		// Although for now it seems like the min chuck is the fastest
+
 		for start < total {
 			end := start + chunkSize - 1
 			if end >= total {
