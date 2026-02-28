@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.1.0](https://github.com/GerhardOtto/animated-telegram/compare/v1.0.0...v1.1.0) (2026-02-28)
+
+
+### Features
+
+* Add GitHub Actions workflow for running tests ([2a35a94](https://github.com/GerhardOtto/animated-telegram/commit/2a35a94b9629df12a1c7627090b4601a7289eca3))
+* Add unit tests for Auth ([2a35a94](https://github.com/GerhardOtto/animated-telegram/commit/2a35a94b9629df12a1c7627090b4601a7289eca3))
+* Add unit tests for Data ([2a35a94](https://github.com/GerhardOtto/animated-telegram/commit/2a35a94b9629df12a1c7627090b4601a7289eca3))
+* Add unit tests for Greeting ([2a35a94](https://github.com/GerhardOtto/animated-telegram/commit/2a35a94b9629df12a1c7627090b4601a7289eca3))
+* Add unit tests for Sorting ([2a35a94](https://github.com/GerhardOtto/animated-telegram/commit/2a35a94b9629df12a1c7627090b4601a7289eca3))
+* **service:** Add tests and workflow ([#10](https://github.com/GerhardOtto/animated-telegram/issues/10)) ([2a35a94](https://github.com/GerhardOtto/animated-telegram/commit/2a35a94b9629df12a1c7627090b4601a7289eca3))
+
+
+### Bug Fixes
+
+* **service:** Remove broken chunk size retry logic in GetAllData ([#12](https://github.com/GerhardOtto/animated-telegram/issues/12)) ([ef0469d](https://github.com/GerhardOtto/animated-telegram/commit/ef0469d3223fe021c92a56eaf0889e342f3d3215))
+* **workflow:** Skip tests on release-please PRs and cache go.sum ([#13](https://github.com/GerhardOtto/animated-telegram/issues/13)) ([ae0e6aa](https://github.com/GerhardOtto/animated-telegram/commit/ae0e6aa176892c3b6084167a389b1cf93cbe8e3d))
+
 ## 1.0.0 (2026-02-28)
 
 
