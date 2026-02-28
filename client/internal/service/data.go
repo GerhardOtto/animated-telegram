@@ -39,7 +39,7 @@ func (s *DataService) GetAllData(ctx context.Context, username, authtoken string
 		name := sec.GetDatasection()
 		total := sec.GetDatalength()
 		minChunk := sec.GetMinchunk()
-		chunkSize := sec.GetMinchunk()
+		chunkSize := minChunk
 
 		if name == "stringsData" && total > 700 {
 			total = 700
@@ -64,15 +64,8 @@ func (s *DataService) GetAllData(ctx context.Context, username, authtoken string
 				Datastartindex: start,
 				Datachunksize:  end - start + 1, // number of items to fetch
 			})
+
 			if err != nil {
-				if chunkSize > minChunk {
-					chunkSize /= 2
-					if chunkSize < minChunk {
-						chunkSize = minChunk
-					}
-					log.Printf("Section=%s chunk error at index %d, retrying with chunk size %d", name, start, chunkSize)
-					continue
-				}
 				return nil, fmt.Errorf("section %s stopped at index %d: %w", name, start, err)
 			}
 
