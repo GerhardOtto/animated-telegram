@@ -31,8 +31,10 @@ func mergeParts(items []*pb.DataItem, mid int, buf []*pb.DataItem, less CompareF
 	for l < mid && r < len(items) {
 		if !less(items[r], buf[l]) {
 			items[i] = buf[l]
+			l++
 		} else {
 			items[i] = items[r]
+			r++
 		}
 		i++
 	}
