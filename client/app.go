@@ -1,7 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"context"
+	"fmt"
+	"os"
+	"strings"
 	"time"
 
 	"google.golang.org/grpc"
@@ -10,6 +14,7 @@ import (
 	pb "github.com/gerhardotto/animated-telegram/client/backendservice"
 	"github.com/gerhardotto/animated-telegram/client/internal/config"
 	"github.com/gerhardotto/animated-telegram/client/internal/service"
+	"github.com/gerhardotto/animated-telegram/client/internal/sorting"
 )
 
 // App wires together configuration and the gRPC connection.
@@ -69,6 +74,81 @@ func (a *App) Run() error {
 		return err
 	}
 
-	_, err = a.data.GetAllData(ctx, a.cfg.Name, token, sections)
-	return err
+	allData, err := a.data.GetAllData(ctx, a.cfg.Name, token, sections)
+	if err != nil {
+		return err
+	}
+
+	reader := bufio.NewReader(os.Stdin)
+	for section, items := range allData {
+		fmt.Printf("\nDataset: %s (%d items)\n", section, len(items))
+
+		var algo, order string
+		if a.cfg.CustomSort {
+			algo = prompt(reader, "Sort algorithm (merge/quick/insertion)", a.cfg.Sort)
+			order = prompt(reader, "Sort order (asc/desc)", a.cfg.Order)
+		} else {
+			algo = a.cfg.Sort
+			order = a.cfg.Order
+		}
+
+		cmp := comparatorFor(items, order)
+		sorted := applySort(algo, items, cmp)
+
+		printItems(section, sorted)
+	}
+	return nil
+}
+
+// prompt prints a label with a default value and reads a line from stdin.
+// If the user enters nothing, the default is returned.
+func prompt(reader *bufio.Reader, label, defaultVal string) string {
+	fmt.Printf("%s [%s]: ", label, defaultVal)
+	line, _ := reader.ReadString('\n')
+	line = strings.TrimSpace(line)
+	if line == "" {
+		return defaultVal
+	}
+	return line
+}
+
+// comparatorFor returns the appropriate CompareFunc by inspecting the first item:
+// if its stringval is non-empty the dataset is string-typed, otherwise integer-typed.
+func comparatorFor(items []*pb.DataItem, order string) sorting.CompareFunc {
+	byString := len(items) > 0 && items[0].GetStringval() != ""
+	if byString {
+		if order == "desc" {
+			return sorting.ByStringValDesc
+		}
+		return sorting.ByStringValAsc
+	}
+	if order == "desc" {
+		return sorting.ByIntValDesc
+	}
+	return sorting.ByIntValAsc
+}
+
+// applySort dispatches to the chosen algorithm, falling back to MergeSort on unknown input.
+func applySort(algo string, items []*pb.DataItem, cmp sorting.CompareFunc) []*pb.DataItem {
+	switch strings.ToLower(algo) {
+	case "quick":
+		return sorting.QuickSort(items, cmp)
+	case "insertion":
+		return sorting.InsertionSort(items, cmp)
+	default:
+		return sorting.MergeSort(items, cmp)
+	}
+}
+
+// printItems prints a preview of up to 10 sorted items from a dataset.
+func printItems(section string, items []*pb.DataItem) {
+	limit := len(items)
+	if limit > 10 {
+		limit = 10
+	}
+	fmt.Printf("Sorted %s (showing %d/%d):\n", section, limit, len(items))
+	for i := 0; i < limit; i++ {
+		item := items[i]
+		fmt.Printf("  [%d] intVal=%d stringval=%q\n", i+1, item.GetIntVal(), item.GetStringval())
+	}
 }
