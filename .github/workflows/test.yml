@@ -8,6 +8,7 @@ name: test
 jobs:
   test:
     runs-on: ubuntu-latest
+    if: ${{ github.head_ref != 'release-please--branches--master' }}
     defaults:
       run:
         working-directory: client
