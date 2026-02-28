@@ -8,6 +8,7 @@ name: test
 jobs:
   test:
     runs-on: ubuntu-latest
+    if: ${{ github.head_ref != 'release-please--branches--master' }}
     defaults:
       run:
         working-directory: client
@@ -16,4 +17,5 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '1.25'
+          cache-dependency-path: client/go.sum
       - run: go test ./...
